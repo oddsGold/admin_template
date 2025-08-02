@@ -2,7 +2,7 @@ import BasicTable from '../tables/BasicTables/BasicTable';
 import {Loading} from '../loadingBar/Loading';
 import DeleteConfirmDialog from '../generics/DeleteConfirmDialog';
 import {GridHeader} from "../../types/grid-header";
-import {UseQueryResult} from "@tanstack/react-query";
+import {UseMutationResult, UseQueryResult} from "@tanstack/react-query";
 import {DropdownItem} from "../ui/dropdown/DropdownItem";
 import {UseCrudPageLogic} from "../../hooks/useCrudPageLogic";
 import {EntityWithId, GeneralResponse} from "../../types/api";
@@ -15,7 +15,7 @@ interface CrudPageProps<TData, TMeta = unknown> {
     editPath?: string;
     gridHeaderRow?: GridHeader[];
     useQuery: (params: QueryParams) => UseQueryResult<GeneralResponse<TData, TMeta>, Error>;
-    useDeleteMutation?: () => { mutate: (id: number) => void; };
+    useDeleteMutation?: () => UseMutationResult<void, Error, number, unknown>;
     isFilter?: boolean;
     isSearch?: boolean;
     dnd?: boolean;
@@ -52,6 +52,7 @@ export default function CrudPage<TData extends EntityWithId, TMeta extends Pagin
         handleCloseDialog,
         handleDelete,
     } = UseCrudPageLogic<TData, TMeta>(useQuery, useDeleteMutation);
+
 
     if (isLoading || isPending) {
         return (

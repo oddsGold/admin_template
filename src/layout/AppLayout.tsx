@@ -8,13 +8,14 @@ import {Loading} from "../components/loadingBar/Loading";
 
 const LayoutContent: React.FC = () => {
     const {isExpanded, isHovered, isMobileOpen} = useSidebar();
-    const {account, isLoading, isError} = useGetAccount();
-    console.log("Account state:", { account, isLoading, isError });
+    const {account, isLoading: isLoadingAccount, isError} = useGetAccount();
+    const isAccountReady = !isLoadingAccount && !!account;
+    console.log("Account state:", { account, isLoadingAccount, isError });
 
     return (
         <div className="min-h-screen xl:flex">
             <div>
-                <AppSidebar/>
+                <AppSidebar isAccountReady={isAccountReady}/>
                 <Backdrop/>
             </div>
             <div
@@ -22,7 +23,7 @@ const LayoutContent: React.FC = () => {
                     isExpanded || isHovered ? "lg:ml-[240px]" : "lg:ml-[90px]"
                 } ${isMobileOpen ? "ml-0" : ""}`}
             >
-                {isLoading ? (
+                {isLoadingAccount ? (
                     <>
                         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-gray-900/60 rounded-3xl">
                             <Loading />

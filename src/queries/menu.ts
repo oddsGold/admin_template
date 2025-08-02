@@ -6,7 +6,7 @@ interface MenuResponse {
     data: MenuItem[];
 }
 
-export const useGetMenuItems = () => {
+export const useGetMenuItems = (enabled: boolean) => {
     const { data, ...queryRest } = useQuery<MenuItem[]>({
         queryKey: ['menu'],
         queryFn: async (): Promise<MenuItem[]> => {
@@ -14,6 +14,7 @@ export const useGetMenuItems = () => {
             const json: MenuResponse = await response.json();
             return json.data;
         },
+        enabled: enabled
     });
 
     return {

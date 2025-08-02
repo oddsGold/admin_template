@@ -50,3 +50,27 @@ export interface UsersQueryParams {
     sort?: string;
     status?: string[];
 }
+
+export interface PayloadRequest {
+    id: number;
+    created_at: string;
+    published: boolean;
+    published_at: string | null | "";
+    published_to: string | null | "";
+    title: string;
+    updated_at: string;
+    user: string;
+}
+
+export interface UpdatePositionRequest {
+    sequence: PayloadRequest[];
+}
+
+export interface UserRequest {
+    email: string;
+    login: string;
+    password: string;
+    password_confirmation: string;
+    role: string;
+    tfa: boolean;
+}

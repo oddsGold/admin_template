@@ -1,7 +1,7 @@
 import {useMutation, useQuery, useQueryClient, UseQueryResult} from '@tanstack/react-query';
-import {fetchWithAuth} from "./http-client.ts";
+import {fetchWithAuth} from "./http-client";
 import { toast } from 'sonner';
-import {UsersQueryParams, UsersResponse} from "../types/users.ts";
+import {User, UserRequest, UsersQueryParams, UsersResponse} from "../types/users";
 
 type EmailRequest = {
     email: string;
@@ -101,6 +101,32 @@ export const useUpdatePassword = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['account'] });
+
+            toast.success('Password updated successfully', {
+                description: 'Your password has been changed successfully',
+            });
+        },
+        onError: () => {
+            toast.error('Password update failed', {
+                description: 'Failed to update password. Please try again.',
+            });
+        },
+    })
+}
+
+export const useCreateUser = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<User, Error, UserRequest>({
+        mutationFn: async (data) => {
+            const response = await fetchWithAuth('/users', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] });
 
             toast.success('Password updated successfully', {
                 description: 'Your password has been changed successfully',

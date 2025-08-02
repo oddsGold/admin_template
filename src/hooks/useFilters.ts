@@ -24,12 +24,21 @@ export function useFilters({
             const saved = localStorage.getItem(storageKey);
             if (saved) {
                 const parsed = JSON.parse(saved);
-                setFilters({ status: parsed.selectedValues });
+                if (parsed.selectedValues && parsed.selectedValues.length > 0) {
+                    setFilters({ status: parsed.selectedValues });
+                    setPage(1);
+                }
                 return parsed;
             }
         }
         return initialFilters;
     });
+
+    useEffect(() => {
+        if (storageKey) {
+            localStorage.setItem(storageKey, JSON.stringify(selectedStatuses));
+        }
+    }, [selectedStatuses, storageKey])
 
     useEffect(() => {
         if (storageKey) {

@@ -1,19 +1,15 @@
-// import React, { useCallback } from 'react';
 import { Location } from 'react-router-dom';
-
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
-// import { handleSort } from '../utils/handleSort';
-// import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import DataTableRow from './DataTableRow';
-// import { closestCorners, DndContext, DragEndEvent } from '@dnd-kit/core';
-// import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-// import { acceptHandler } from '../utils/toastHandler';
-// import { useUpdateItemPositionMutation } from '../../redux/faq/faqApiSlice';
-// import { useDragAndDropUpdate } from '../../hooks/useDragAndDropUpdate';
+import { closestCorners, DndContext, DragEndEvent } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { EntityWithId } from '../../types/api';
 import { GridHeader } from '../../types/grid-header';
-import {handleSort} from "../../utils/handleSort.ts";
-// import { UseMutationResult } from '@tanstack/react-query';
+import {handleSort} from "../../utils/handleSort";
+import {useCallback} from "react";
+import {useDragAndDropUpdate} from "../../hooks/useDragAndDropUpdate";
+import {useUpdateItemPosition} from "../../queries/general";
 
 interface DataTableProps<TData extends EntityWithId> {
     data: TData[];
@@ -36,41 +32,46 @@ function DataTable<TData extends EntityWithId>({
                                                    setSort,
                                                    dnd,
                                                }: DataTableProps<TData>) {
-    // const [updatePosition, { isLoading }] = useUpdateItemPositionMutation();
-    //
-    // const updatePositionToApi = useCallback(
-    //     async (newData: TData[]) => {
-    //         const payload = newData.map((item) => item.id.toString());
-    //         await updatePosition({ sequence: payload }).unwrap();
-    //         acceptHandler('Порядок записів змінено');
-    //     },
-    //     [updatePosition]
-    // );
-    //
-    // const getNewData = useCallback(
-    //     (currentData: TData[], activeId: string | number, overId: string | number) => {
-    //         const activeIndex = currentData.findIndex((item) => item.id === activeId);
-    //         const overIndex = currentData.findIndex((item) => item.id === overId);
-    //
-    //         const newData = [...currentData];
-    //         const [removed] = newData.splice(activeIndex, 1);
-    //         newData.splice(overIndex, 0, removed);
-    //         return newData;
-    //     },
-    //     []
-    // );
-    //
-    // const { localData, handleDragStart, handleDragEnd } = useDragAndDropUpdate<TData>(
-    //     data,
-    //     updatePositionToApi
-    // );
-    //
-    // const onDragEnd = useCallback(
-    //     (event: DragEndEvent) => {
-    //         handleDragEnd(event, getNewData);
-    //     },
-    //     [handleDragEnd, getNewData]
-    // );
+    const { mutateAsync: updatePositionAsync } = useUpdateItemPosition();
+
+    const updatePositionToApi = useCallback(
+        async (newData: TData[]) => {
+            const payload = { sequence: newData };
+            await updatePositionAsync(payload);
+        },
+        [updatePositionAsync]
+    );
+
+    const getNewData = useCallback(
+        (currentData: TData[], activeId: string | number, overId: string | number) => {
+            const activeIndex = currentData.findIndex((item) => item.id === activeId);
+            const overIndex = currentData.findIndex((item) => item.id === overId);
+
+            const newData = [...currentData];
+            const [removed] = newData.splice(activeIndex, 1);
+            newData.splice(overIndex, 0, removed);
+            return newData;
+        },
+        []
+    );
+
+    const { localData, handleDragStart, handleDragEnd } = useDragAndDropUpdate<TData>({
+        data,
+        updatePositionToApi
+    });
+
+    const onDragEnd = useCallback(
+        (event: DragEndEvent) => {
+            const { active, over } = event;
+            if (!over) return;
+
+            handleDragEnd({
+                active: { id: Number(active.id) },
+                over: { id: Number(over.id) }
+            }, getNewData);
+        },
+        [handleDragEnd, getNewData]
+    );
 
     return (
         <Table className="w-full overflow-hidden">
@@ -128,31 +129,30 @@ function DataTable<TData extends EntityWithId>({
 
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                 {dnd ? (
-                    ""
-                    // <DndContext
-                    //     collisionDetection={closestCorners}
-                    //     modifiers={[restrictToVerticalAxis]}
-                    //     onDragStart={handleDragStart}
-                    //     onDragEnd={onDragEnd}
-                    // >
-                    //     <SortableContext
-                    //         items={localData.map((item) => item.id)}
-                    //         strategy={verticalListSortingStrategy}
-                    //     >
-                    //         {localData.map((row, rowIndex) => (
-                    //             <DataTableRow
-                    //                 key={row.id}
-                    //                 id={row.id}
-                    //                 gridHeaderRow={gridHeaderRow}
-                    //                 row={row}
-                    //                 setEditPath={setEditPath}
-                    //                 handleDelete={handleDelete}
-                    //                 location={location}
-                    //                 dnd={dnd}
-                    //             />
-                    //         ))}
-                    //     </SortableContext>
-                    // </DndContext>
+                    <DndContext
+                        collisionDetection={closestCorners}
+                        modifiers={[restrictToVerticalAxis]}
+                        onDragStart={handleDragStart}
+                        onDragEnd={onDragEnd}
+                    >
+                        <SortableContext
+                            items={localData.map((item) => item.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {localData.map((row) => (
+                                <DataTableRow
+                                    key={row.id}
+                                    id={row.id}
+                                    gridHeaderRow={gridHeaderRow}
+                                    row={row}
+                                    setEditPath={setEditPath}
+                                    handleDelete={handleDelete}
+                                    location={location}
+                                    dnd={dnd}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
                 ) : (
                     <>
                         {data.map((row) => (

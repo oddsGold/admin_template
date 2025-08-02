@@ -7,7 +7,11 @@ import Logo from "../components/sidebar/Logo";
 import MenuItems from "../components/sidebar/MenuItems";
 import ContactInfo from "../components/sidebar/ContactInfo.tsx";
 
-const AppSidebar: React.FC = () => {
+interface AppSidebarProps {
+    isAccountReady: boolean;
+}
+
+const AppSidebar: React.FC<AppSidebarProps> = ({isAccountReady}) => {
     const {isExpanded, isMobileOpen, isHovered, setIsHovered} = useSidebar();
     const location = useLocation();
 
@@ -20,7 +24,7 @@ const AppSidebar: React.FC = () => {
     );
     const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-    const {menu, isLoading} = useGetMenuItems();
+    const {menu, isLoading: isLoadingMenu} = useGetMenuItems(isAccountReady);
 
     const navItems = useMemo(() => {
         return menu ? convertMenu(menu) : [];
@@ -88,7 +92,7 @@ const AppSidebar: React.FC = () => {
                                 subMenuRefs={subMenuRefs}
                                 handleSubmenuToggle={handleSubmenuToggle}
                                 isActive={isActive}
-                                isLoading={isLoading}
+                                isLoadingMenu={isLoadingMenu}
                             />
                         </div>
                     </div>

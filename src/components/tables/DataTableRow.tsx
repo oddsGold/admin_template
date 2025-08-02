@@ -1,8 +1,8 @@
 import {TableCell} from '../ui/table';
 import Badge from '../ui/badge/Badge';
 import {Link, Location} from 'react-router-dom';
-// import { useSortable } from '@dnd-kit/sortable';
-// import { CSS } from '@dnd-kit/utilities';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {EntityWithId} from '../../types/api';
 import {GridHeader} from '../../types/grid-header';
 import _ from 'lodash';
@@ -26,30 +26,28 @@ function DataTableRow<TData extends EntityWithId>({
                                                       location,
                                                       dnd,
                                                   }: DataTableRowProps<TData>) {
-    // const { attributes, listeners, setNodeRef, transform, transition } = dnd
-    //     ? useSortable({
-    //         id,
-    //         attributes: {
-    //             role: 'button',
-    //             tabIndex: 0,
-    //         },
-    //     })
-    //     : {
-    //         attributes: undefined,
-    //         listeners: undefined,
-    //         setNodeRef: undefined,
-    //         transform: null,
-    //         transition: undefined,
-    //     };
-    //
-    // const style = {
-    //     transition,
-    //     transform: CSS.Transform.toString(transform),
-    // };
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition
+    } = useSortable({
+        id,
+        disabled: !dnd,
+        attributes: dnd ? { role: 'button', tabIndex: 0 } : undefined,
+    });
+
+    const style = dnd
+        ? {
+            transition,
+            transform: CSS.Transform.toString(transform)
+        }
+        : undefined;
 
     return (
-        // <tr style={style} className="relative cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
-        <tr className="relative cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+        <tr style={style} className="relative cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+        {/*<tr className="relative cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">*/}
             {gridHeaderRow.map((header, cellIndex) => (
                 <TableCell key={cellIndex}
                            className="px-4 py-3 text-gray-500 text-start text-theme-sm border border-gray-100 dark:text-gray-400 dark:border-white/[0.05]"
@@ -66,8 +64,8 @@ function DataTableRow<TData extends EntityWithId>({
                 className="px-4 py-3 text-gray-500 text-start text-theme-sm border border-gray-100 dark:text-gray-400 dark:border-white/[0.05]">
         <span className="flex items-center w-full gap-2">
           {dnd && (
-              // <span ref={setNodeRef} {...attributes} {...listeners}>
-              <span>
+              <span ref={setNodeRef} {...attributes} {...listeners}>
+              {/*<span>*/}
               <svg
                   width="16"
                   height="16"

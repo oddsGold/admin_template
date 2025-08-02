@@ -4,26 +4,46 @@ import {UseMutationResult, UseQueryResult} from "@tanstack/react-query";
 import {PaginationMeta} from "../types/users";
 import {EntityWithId, GeneralResponse} from "../types/api";
 
-interface DeleteMutation<TData> {
-    mutate: (id: number) => void;
-}
-
-export function UseCrudPageLogic<TData  extends EntityWithId, TMeta extends PaginationMeta = PaginationMeta>(
+export function UseCrudPageLogic<TData extends EntityWithId, TMeta extends PaginationMeta = PaginationMeta>(
     useQuery: (params: QueryParams) => UseQueryResult<GeneralResponse<TData, TMeta>, Error>,
-    deleteMutation?: UseMutationResult<void, Error, number, unknown>,
+    deleteMutation?: () => UseMutationResult<void, Error, number, unknown>,
     initialLimit = 30
 ) {
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(initialLimit);
     const [size, setSize] = useState<number>(30);
     const [sort, setSort] = useState<string>('-id');
-    const [filters, setFilters] = useState({});
     const [items, setItems] = useState<TData[]>([]);
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [itemToDelete, setItemToDelete] = useState<TData | null>(null);
+    const [filters, setFilters] = useState<{ status?: string[] }>(() => {
+        if (typeof window !== 'undefined') {
+            const savedFilters = localStorage.getItem('selectedFilters');
+            if (savedFilters) {
+                const parsedFilters = JSON.parse(savedFilters);
+                if (parsedFilters.selectedValues && parsedFilters.selectedValues.length > 0) {
+                    return {status: parsedFilters.selectedValues};
+                }
+            }
+        }
+        return {};
+    });
 
+
+    /**
+     * Параметри запиту для отримання списку
+     * @type {QueryParams}
+     * @example
+     * // Приклад відправки параметрів:
+     * {
+     *   page: 1,       // Перша сторінка
+     *   limit: 30,     // 30 елементів на сторінці
+     *   sort: '-id',   // Сортування за ID у зворотному порядку
+     *   status: ["1", "2", "3", "4"]// Фільтр (values)
+     * }
+     */
     const queryParams: QueryParams = {
         page,
         limit,
@@ -33,17 +53,23 @@ export function UseCrudPageLogic<TData  extends EntityWithId, TMeta extends Pagi
 
     const {
         data: response,
-        isLoading,
-        isPending,
+        isLoading: isQueryLoading,
+        isPending: isQueryPending,
         isError,
         error,
         ...rest
     } = useQuery(queryParams);
 
-    const useDeleteMutation = deleteMutation();
+    const useDeleteMutation = deleteMutation?.();
+    const {
+        isPending: isDeletePending,
+    } = useDeleteMutation || {};
 
     const data = response?.data || [];
     const meta = response?.meta;
+
+    const isLoading = isQueryLoading || isDeletePending;
+    const isPending = isQueryPending || isDeletePending;
 
     useEffect(() => {
         if (page === 1) {
@@ -83,7 +109,6 @@ export function UseCrudPageLogic<TData  extends EntityWithId, TMeta extends Pagi
     };
 
     const handleDelete = () => {
-        console.log("itemToDelete = ", itemToDelete);
         if (itemToDelete && useDeleteMutation && typeof useDeleteMutation.mutate === 'function') {
             useDeleteMutation.mutate(itemToDelete.id);
         } else {

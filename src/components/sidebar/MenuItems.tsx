@@ -24,7 +24,7 @@ interface MenuItemsProps {
     subMenuRefs: React.RefObject<Record<string, HTMLDivElement | null>>;
     handleSubmenuToggle: (index: number, menuType: 'main' | 'others') => void;
     isActive: (path: string | null) => boolean;
-    isLoading: boolean;
+    isLoadingMenu: boolean;
 }
 
 const MenuItems: React.FC<MenuItemsProps> = ({
@@ -38,11 +38,11 @@ const MenuItems: React.FC<MenuItemsProps> = ({
                                                  subMenuRefs,
                                                  handleSubmenuToggle,
                                                  isActive,
-                                                 isLoading,
+                                                 isLoadingMenu,
                                              }) => {
     return (
         <ul className="flex flex-col">
-            {isLoading
+            {isLoadingMenu
                 ? [...Array(5)].map((_, index) => <MenuSkeleton key={index} />)
                 : items.map((nav, index) => (
                     <Item

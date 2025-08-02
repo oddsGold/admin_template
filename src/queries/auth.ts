@@ -63,15 +63,30 @@ export const useGetAccount = () => {
     const { data, ...rest } = useQuery<AccountData>({
         queryKey: ['account'],
         queryFn: async (): Promise<AccountData> => {
-            const response = await fetchWithAuth('/account');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            console.log('Starting account fetch');
+            try {
+                const response = await fetchWithAuth('/account');
+                console.log('Account fetch completed', response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const json: ApiResponse = await response.json();
+
+                return json.data;
+            }catch (error) {
+                console.error('Account fetch failed', error);
+                throw error;
             }
-            const json: ApiResponse = await response.json();
-            if (!json.data) {
-                throw new Error("Invalid response structure");
-            }
-            return json.data;
+            
+            // const response = await fetchWithAuth('/account');
+            // if (!response.ok) {
+            //     throw new Error(`HTTP error! status: ${response.status}`);
+            // }
+            // const json: ApiResponse = await response.json();
+            // if (!json.data) {
+            //     throw new Error("Invalid response structure");
+            // }
+            // return json.data;
         },
     });
 

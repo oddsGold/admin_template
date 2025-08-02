@@ -30,6 +30,7 @@ export default function UserPage() {
                         useQuery={useGetUsers}
                         isFilter={true}
                         isSearch={true}
+                        dnd={true}
                         useDeleteMutation={useDeleteUser}
                     />
                 </ComponentCard>
