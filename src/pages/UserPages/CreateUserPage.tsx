@@ -2,7 +2,7 @@ import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import {useRef, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import generatePassword from "../../utils/generatePassword";
 import {copyToClipboard} from "../../utils/copyToClipboard";
 import { CopyIcon, PasswordIcon } from "../../icons/index";
@@ -10,6 +10,8 @@ import UserForm from "../../components/form/page-forms/UserForm";
 import {useCreateUser} from "../../queries/user";
 import {UserRequest} from "../../types/users";
 import { UseCrudPageLogic } from "../../hooks/useCrudPageLogic";
+import {useGetRoles} from "../../queries/role";
+import {Loading} from "../../components/loadingBar/Loading.tsx";
 
 interface UserFormRef {
     setPassword: (password: string) => void;
@@ -17,11 +19,14 @@ interface UserFormRef {
 
 export default function CreateUserPage() {
     const navigate = useNavigate();
+    const location = useLocation();
     const formRef = useRef<UserFormRef>(null);
     const [password, setPassword] = useState<string>('');
 
     const { mutateAsync: createUser, isPending } = useCreateUser();
-    const { data } = UseCrudPageLogic({ useQuery: useRolesQuery });
+    const { data } = UseCrudPageLogic(useGetRoles);
+
+    const previousPath = location.state?.from?.pathname ?? '/admin/users';
 
     const handleGenerate = () => {
         const newPassword = generatePassword(10);
@@ -40,12 +45,26 @@ export default function CreateUserPage() {
 
     const onSubmit = async (data: UserRequest) => {
         try {
-            await createUser(data);
+            const valuesToSend = {
+                ...data,
+                tfa: data.tfa ? 1 : 0,
+            };
+
+            await createUser(valuesToSend);
             navigate('/admin/users');
         } catch (error) {
             console.error('Failed to create user:', error);
         }
     };
+
+    if (isPending) {
+        return (
+            <div
+                className="absolute inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-gray-900/60 rounded-3xl">
+                <Loading/>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -84,13 +103,13 @@ export default function CreateUserPage() {
                         defaultCurrent={{
                             login: '',
                             email: '',
-                            role: null,
+                            role: '',
                             password: '',
                             password_confirmation: '',
-                            tfa: true,
+                            tfa: 1,
                         }}
-                        password={false}
-                        handleSubmit={handleSubmit}
+                        password={true}
+                        handleSubmit={onSubmit}
                         roles={data}
                         backLinkPath={previousPath}
                     />

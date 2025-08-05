@@ -1,7 +1,7 @@
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {fetchWithAuth} from "./http-client";
 import {toast} from "sonner";
-import {EntityWithId} from "../types/api";
+import {EntityWithId, MultiOption} from "../types/api";
 
 export const useUpdateItemPosition = <T extends EntityWithId>() => {
     const queryClient = useQueryClient();
@@ -26,6 +26,31 @@ export const useUpdateItemPosition = <T extends EntityWithId>() => {
         onError: () => {
             toast.error('Failed to update item position', {
                 description: 'There was an error while updating the item position. Please try again.',
+            });
+        },
+    });
+};
+
+export const useAddOption = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<MultiOption, Error, MultiOption>({
+        mutationFn: async (newOption) => {
+            const response = await fetchWithAuth('/options', {
+                method: 'POST',
+                body: JSON.stringify(newOption),
+            });
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['options'] });
+            toast.success('Опцію додано успішно', {
+                description: 'Нову опцію було додано до списку',
+            });
+        },
+        onError: () => {
+            toast.error('Не вдалося додати опцію', {
+                description: 'Спробуйте ще раз пізніше',
             });
         },
     });

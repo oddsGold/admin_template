@@ -5,9 +5,8 @@ import {GridHeader} from "../../types/grid-header";
 import {UseMutationResult, UseQueryResult} from "@tanstack/react-query";
 import {DropdownItem} from "../ui/dropdown/DropdownItem";
 import {UseCrudPageLogic} from "../../hooks/useCrudPageLogic";
-import {EntityWithId, GeneralResponse} from "../../types/api";
+import {EntityWithId, GeneralResponse, PaginationMeta} from "../../types/api";
 import {QueryParams} from "../../types/crud";
-import {PaginationMeta} from "../../types/users";
 
 interface CrudPageProps<TData, TMeta = unknown> {
     buttonTitle?: string;
@@ -15,7 +14,7 @@ interface CrudPageProps<TData, TMeta = unknown> {
     editPath?: string;
     gridHeaderRow?: GridHeader[];
     useQuery: (params: QueryParams) => UseQueryResult<GeneralResponse<TData, TMeta>, Error>;
-    useDeleteMutation?: () => UseMutationResult<void, Error, number, unknown>;
+    useDeleteMutation?: () => UseMutationResult<void, Error, string, unknown>;
     isFilter?: boolean;
     isSearch?: boolean;
     dnd?: boolean;
@@ -46,6 +45,7 @@ export default function CrudPage<TData extends EntityWithId, TMeta extends Pagin
         setFilters,
         isLoading,
         isPending,
+        isFetching,
         openDialog,
         itemToDelete,
         handleOpenDialog,
@@ -54,7 +54,7 @@ export default function CrudPage<TData extends EntityWithId, TMeta extends Pagin
     } = UseCrudPageLogic<TData, TMeta>(useQuery, useDeleteMutation);
 
 
-    if (isLoading || isPending) {
+    if (isLoading || isPending || isFetching) {
         return (
             <div
                 className="absolute inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-gray-900/60 rounded-3xl">

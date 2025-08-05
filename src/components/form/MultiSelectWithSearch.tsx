@@ -1,6 +1,7 @@
-import React, {useEffect, useRef} from "react";
-import {useState} from "react";
-import {MultiOption} from "../../types/crud";
+import React, { useEffect, useRef, useState } from "react";
+import { MultiOption } from "../../types/crud";
+import Button from "../ui/button/Button";
+import {useAddOption} from "../../queries/general.ts";
 
 interface MultiSelectProps {
     label: string;
@@ -14,25 +15,31 @@ interface MultiSelectProps {
     value?: string[];
     hasError?: boolean;
     id?: string;
+    onAddOption?: (newOption: MultiOption) => Promise<MultiOption>;
 }
 
-const MultiSelect: React.FC<MultiSelectProps> = ({
-                                                     label,
-                                                     options,
-                                                     value = [],
-                                                     hasError = false,
-                                                     id,
-                                                     defaultSelected = [],
-                                                     onChange,
-                                                     disabled = false,
-                                                     className = '',
-                                                     error = false,
-                                                     success = false,
-                                                 }) => {
+const MultiSelectWithSearch: React.FC<MultiSelectProps> = ({
+                                                               label,
+                                                               options,
+                                                               value = [],
+                                                               hasError = false,
+                                                               id,
+                                                               defaultSelected = [],
+                                                               onChange,
+                                                               disabled = false,
+                                                               className = '',
+                                                               error = false,
+                                                               success = false,
+                                                               onAddOption,
+                                                           }) => {
     const [selectedOptions, setSelectedOptions] = useState<string[]>(value.length > 0 ? value : defaultSelected);
     const [isOpen, setIsOpen] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
     const [hasValue, setHasValue] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredOptions, setFilteredOptions] = useState<MultiOption[]>(options);
+
+    const { mutateAsync: addOption } = useAddOption();
 
     useEffect(() => {
         setHasValue(selectedOptions.length > 0);
@@ -44,8 +51,17 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
         }
     }, [value]);
 
-    const dropdownRef = useRef(null);
-    const inputRef = useRef(null);
+    useEffect(() => {
+        setFilteredOptions(
+            options.filter(option =>
+                option.label.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                !selectedOptions.includes(option.value)
+            )
+        );
+    }, [searchQuery, options, selectedOptions]);
+
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLDivElement>(null);
 
     const toggleDropdown = () => {
         if (!disabled) setIsOpen((prev) => !prev);
@@ -67,18 +83,46 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     };
 
     const selectedValuesText = selectedOptions.map(
-        (value) => options.find((option) => option.value === value)?.label || ''
+        (value) => options.find((option) => option.value === value)?.label || value
     );
-    const filteredOptions = options.filter((option) => !selectedOptions.includes(option.value));
+
+    const handleAddNewOption = async () => {
+        if (!searchQuery.trim()) return;
+
+        try {
+            const newOption = {
+                value: searchQuery.trim(),
+                // label: searchQuery.trim()
+            };
+
+            const createdOption = await addOption(newOption);
+
+            const newSelectedOptions = [...selectedOptions, createdOption.value];
+            setSelectedOptions(newSelectedOptions);
+            onChange?.(newSelectedOptions);
+            setSearchQuery('');
+            setIsOpen(true);
+        } catch (err) {
+            console.error("Помилка при додаванні опції:", err);
+        }
+    };
+
+    // Обробник натискання Enter у полі пошуку
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && searchQuery.trim() && onAddOption) {
+            e.preventDefault();
+            handleAddNewOption();
+        }
+    };
 
     let inputClasses = `flex h-auto rounded-lg border py-1.5 pl-3 pr-3 shadow-theme-xs outline-hidden transition focus:border-brand-300 focus:shadow-focus-ring dark:bg-gray-900 dark:focus:border-brand-300 ${className}`;
 
     if (disabled) {
-        inputClasses += ` text-gray-500 border-gray-300 opacity-40 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 opacity-40`;
-    } else if (error) {
-        inputClasses += `  border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
+        inputClasses += ` text-gray-500 border-gray-300 opacity-40 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
+    } else if (error || hasError) {
+        inputClasses += ` border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
     } else if (success) {
-        inputClasses += `  border-success-500 focus:border-success-300 focus:ring-success-500/20 dark:text-success-400 dark:border-success-500 dark:focus:border-success-800`;
+        inputClasses += ` border-success-500 focus:border-success-300 focus:ring-success-500/20 dark:text-success-400 dark:border-success-500 dark:focus:border-success-800`;
     } else {
         inputClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-800`;
     }
@@ -88,8 +132,8 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
             if (
                 dropdownRef.current &&
                 inputRef.current &&
-                !(dropdownRef.current as HTMLElement).contains(event.target as Node) &&
-                !(inputRef.current as HTMLElement).contains(event.target as Node)
+                !dropdownRef.current.contains(event.target as Node) &&
+                !inputRef.current.contains(event.target as Node)
             ) {
                 setIsOpen(false);
             }
@@ -105,7 +149,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                 htmlFor={id}
                 className={`absolute left-3 transition-all duration-200 ease-in-out ${
                     isFocused || hasValue
-                        ? `top-0 text-xs transform -translate-y-3 bg-white px-1 dark:bg-gray-900 dark:text-white z-999 ${
+                        ? `top-0 text-xs transform -translate-y-3 bg-white px-1 dark:bg-gray-900 dark:text-white ${
                             hasError || error ? 'text-error-500' : 'text-[#111112]'
                         }`
                         : `top-[20px] text-[14px] transform -translate-y-1/2 ${
@@ -116,7 +160,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                 {label}
             </label>
 
-            <div className="relative z-20 inline-block w-full">
+            <div className="relative inline-block w-full">
                 <div className="relative flex flex-col items-center">
                     <div onClick={toggleDropdown} className="w-full" ref={inputRef}>
                         <div className={inputClasses}>
@@ -156,7 +200,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                                     ))
                                 ) : (
                                     <input
-                                        className="w-full h-full p-1 pr-2 text-sm bg-transparent border-0 outline-hidden appearance-none placeholder:text-gray-800 focus:border-0 focus:outline-hidden focus:ring-0 dark:placeholder:text-white/90 text-gray-300"
+                                        className="w-full h-full p-1 pr-2 text-sm bg-transparent border-0 outline-hidden appearance-none placeholder:text-gray-800 focus:border-0 focus:outline-hidden focus:ring-0 dark:placeholder:text-white/90"
                                         readOnly
                                         value=""
                                     />
@@ -196,6 +240,39 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                             ref={dropdownRef}
                         >
                             <div className="flex flex-col">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        placeholder="Знайти або додати нове"
+                                        className="w-full p-2 text-sm border-b-2 dark:bg-gray-800 dark:text-white/90"
+                                        autoFocus
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setSearchQuery('')}
+                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-5 w-5"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M6 18L18 6M6 6l12 12"
+                                                />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
                                 {filteredOptions.length > 0 ? (
                                     filteredOptions.map((option, index) => (
                                         <div
@@ -214,8 +291,25 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                                             </div>
                                         </div>
                                     ))
+                                ) : searchQuery.trim() ? (
+                                    <div className="p-2 text-sm text-gray-500">
+                                        Немає результатів. Натисніть "Додати" щоб створити нову опцію.
+                                    </div>
                                 ) : (
                                     <div className="p-2 text-sm text-gray-500">Немає доступних опцій</div>
+                                )}
+                                {searchQuery.trim() && (
+                                    <div className="text-sm">
+                                        <Button
+                                            type="button"
+                                            variant="success"
+                                            size="sm"
+                                            onClick={handleAddNewOption}
+                                            className="w-full p-2 text-blue-500 rounded-none rounded-bl-lg rounded-br-lg"
+                                        >
+                                            Додати "{searchQuery.trim()}"
+                                        </Button>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -226,4 +320,4 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     );
 };
 
-export default MultiSelect;
+export default MultiSelectWithSearch;

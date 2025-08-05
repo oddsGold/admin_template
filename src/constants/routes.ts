@@ -7,6 +7,9 @@ const paths = {
     USERS: 'admin/users',
     EDITUSERS: 'admin/users/:id/edit',
     CREATEUSERS: 'admin/users/create',
+    ROLES: 'admin/roles',
+    EDITROLES: 'admin/roles/:id/edit',
+    CREATROLES: 'admin/roles/create',
 } as const;
 
 export { paths };

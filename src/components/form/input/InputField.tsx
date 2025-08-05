@@ -1,4 +1,4 @@
-import type React from "react";
+import React, {useEffect, useRef, useState} from "react";
 import type {FC} from "react";
 
 interface InputProps {
@@ -17,6 +17,7 @@ interface InputProps {
     error?: boolean;
     errorMessage?: string;
     hint?: string;
+    label: string;
 }
 
 const Input: FC<InputProps> = ({
@@ -35,8 +36,45 @@ const Input: FC<InputProps> = ({
                                    error = false,
                                    errorMessage,
                                    hint,
+                                   label,
                                    ...rest
                                }) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const [hasValue, setHasValue] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+
+    useEffect(() => {
+        setHasValue(!!value);
+    }, [value]);
+
+    useEffect(() => {
+        const handleFocusIn = (e: FocusEvent) => {
+            if (wrapperRef.current?.contains(e.target as Node)) {
+                setIsFocused(true);
+            }
+        };
+
+        const handleFocusOut = (e: FocusEvent) => {
+            if (!wrapperRef.current?.contains(e.relatedTarget as Node)) {
+                setIsFocused(false);
+            }
+        };
+
+        const wrapper = wrapperRef.current;
+        if (wrapper) {
+            wrapper.addEventListener('focusin', handleFocusIn);
+            wrapper.addEventListener('focusout', handleFocusOut);
+
+            return () => {
+                wrapper.removeEventListener('focusin', handleFocusIn);
+                wrapper.removeEventListener('focusout', handleFocusOut);
+            };
+        }
+    }, []);
+
+
     let inputClasses = ` h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${className}`;
 
     if (disabled) {
@@ -49,13 +87,27 @@ const Input: FC<InputProps> = ({
         inputClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800`;
     }
 
+
     return (
-        <div className="relative">
+        <div className="relative" ref={wrapperRef}>
+            {label && (
+                <label
+                    htmlFor={id}
+                    className={`absolute left-4 transition-all duration-200 ease-in-out ${
+                        isFocused || hasValue
+                            ? `top-0 text-xs transform -translate-y-3 bg-white px-1 dark:text-white ${error ? 'text-error-500' : 'text-[#111112]'}`
+                            : `top-[22px] text-[14px] transform -translate-y-1/2 text-[#888990] ${error ? 'text-error-500' : 'text-[#111112]'}`
+                    }`}
+                >
+                    {label}
+                </label>
+            )}
             <input
+                ref={inputRef}
                 type={type}
                 id={id}
                 name={name}
-                placeholder={placeholder}
+                placeholder={isFocused || hasValue ? '' : placeholder}
                 value={value}
                 onChange={onChange}
                 min={min}
@@ -63,6 +115,7 @@ const Input: FC<InputProps> = ({
                 step={step}
                 disabled={disabled}
                 className={inputClasses}
+                autoComplete="new-password"
                 {...rest}
             />
 

@@ -4,7 +4,7 @@ import {EntityWithId} from "./api";
 export interface MultiOption {
     value: string;
     label: string;
-    selected: boolean;
+    selected?: boolean;
 }
 
 export interface QueryParams {

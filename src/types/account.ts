@@ -1,11 +1,4 @@
-export interface Role {
-    id: number;
-    name: string;
-    label: string;
-    resources: number[];
-    created_at: string;
-    updated_at: string;
-}
+import {Role} from "./role";
 
 export interface AccountData {
     id: number;

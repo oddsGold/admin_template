@@ -1,10 +1,12 @@
 import {useEffect, useState} from "react";
 import {QueryParams} from "../types/crud";
 import {UseMutationResult, UseQueryResult} from "@tanstack/react-query";
-import {PaginationMeta} from "../types/users";
-import {EntityWithId, GeneralResponse} from "../types/api";
+import {EntityWithId, GeneralResponse, PaginationMeta} from "../types/api";
 
-export function UseCrudPageLogic<TData extends EntityWithId, TMeta extends PaginationMeta = PaginationMeta>(
+export function UseCrudPageLogic<
+    TData extends EntityWithId,
+    TMeta extends PaginationMeta = PaginationMeta
+>(
     useQuery: (params: QueryParams) => UseQueryResult<GeneralResponse<TData, TMeta>, Error>,
     deleteMutation?: () => UseMutationResult<void, Error, number, unknown>,
     initialLimit = 30
@@ -55,6 +57,7 @@ export function UseCrudPageLogic<TData extends EntityWithId, TMeta extends Pagin
         data: response,
         isLoading: isQueryLoading,
         isPending: isQueryPending,
+        isFetching,
         isError,
         error,
         ...rest
@@ -123,6 +126,7 @@ export function UseCrudPageLogic<TData extends EntityWithId, TMeta extends Pagin
         items,
         isLoading,
         isPending,
+        isFetching,
         isError,
         error,
         page,

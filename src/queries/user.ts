@@ -1,19 +1,10 @@
 import {useMutation, useQuery, useQueryClient, UseQueryResult} from '@tanstack/react-query';
 import {fetchWithAuth} from "./http-client";
 import { toast } from 'sonner';
-import {User, UserRequest, UsersQueryParams, UsersResponse} from "../types/users";
+import {EmailRequest, PasswordRequest, User, UserRequest, UsersResponse} from "../types/users";
+import {QueryParams} from "../types/api";
 
-type EmailRequest = {
-    email: string;
-}
-
-type PasswordRequest = {
-    old_password: string;
-    password: string;
-    password_confirmation: string;
-}
-
-export const useGetUsers = (params: UsersQueryParams = {}): UseQueryResult<UsersResponse, Error> => {
+export const useGetUsers = (params: QueryParams = {}): UseQueryResult<UsersResponse, Error> => {
     const { page = 1, limit = 30, sort = '-id', status = [] } = params;
 
     const queryParams = new URLSearchParams({
@@ -40,10 +31,38 @@ export const useGetUsers = (params: UsersQueryParams = {}): UseQueryResult<Users
     });
 };
 
+export const useGetCurrentUser = (id: string) => {
+    const { data, ...rest } = useQuery<User, Error>({
+        queryKey: ['current', id],
+        queryFn: async (): Promise<User> => {
+            try {
+                const response = await fetchWithAuth(`/users/${id}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const responseData = await response.json();
+
+                return responseData.data || responseData;
+            } catch (error) {
+                console.error('Failed to fetch user', error);
+                toast.error('Failed to fetch user', {
+                    description: 'Could not load user data. Please try again.',
+                });
+                throw error;
+            }
+        },
+    });
+
+    return {
+        user: data,
+        ...rest
+    };
+};
+
 export const useDeleteUser = () => {
     const queryClient = useQueryClient();
 
-    return useMutation<void, Error, number>({
+    return useMutation<void, Error, string>({
         mutationFn: async (id) => {
             await fetchWithAuth(`/users/${id}`, {
                 method: 'DELETE',
@@ -128,13 +147,47 @@ export const useCreateUser = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
 
-            toast.success('Password updated successfully', {
-                description: 'Your password has been changed successfully',
+            toast.success('User created successfully', {
+                description: 'New user has been added',
             });
         },
         onError: () => {
-            toast.error('Password update failed', {
-                description: 'Failed to update password. Please try again.',
+            toast.error('Failed to create user', {
+                description: 'Could not create new user. Please try again.',
+            });
+        },
+    })
+}
+
+export const useUpdateUser = (id: string) => {
+    const queryClient = useQueryClient();
+
+    return useMutation<User, Error, UserRequest>({
+        mutationFn: async (data) => {
+            const response = await fetchWithAuth(`/users/${id}`, {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                predicate: (query) => {
+                    const [key, arg] = query.queryKey;
+                    return (
+                        key === 'users' ||
+                        (key === 'current' && arg === id)
+                    );
+                }
+            });
+
+            toast.success('User updated successfully', {
+                description: 'User data has been saved successfully',
+            });
+        },
+        onError: () => {
+            toast.error('Failed to update user', {
+                description: 'Could not update user data. Please try again.',
             });
         },
     })
