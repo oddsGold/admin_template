@@ -103,11 +103,10 @@ const MultiSelectWithSearch: React.FC<MultiSelectProps> = ({
             setSearchQuery('');
             setIsOpen(true);
         } catch (err) {
-            console.error("Помилка при додаванні опції:", err);
+            console.error("Error adding option:", err);
         }
     };
 
-    // Обробник натискання Enter у полі пошуку
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && searchQuery.trim() && onAddOption) {
             e.preventDefault();
@@ -115,7 +114,7 @@ const MultiSelectWithSearch: React.FC<MultiSelectProps> = ({
         }
     };
 
-    let inputClasses = `flex h-auto rounded-lg border py-1.5 pl-3 pr-3 shadow-theme-xs outline-hidden transition focus:border-brand-300 focus:shadow-focus-ring dark:bg-gray-900 dark:focus:border-brand-300 ${className}`;
+    let inputClasses = `flex h-auto rounded-t-lg border py-1.5 pl-3 pr-3 shadow-theme-xs outline-hidden transition focus:border-brand-300 focus:shadow-focus-ring dark:bg-gray-900 dark:focus:border-brand-300 ${className}`;
 
     if (disabled) {
         inputClasses += ` text-gray-500 border-gray-300 opacity-40 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
@@ -235,7 +234,7 @@ const MultiSelectWithSearch: React.FC<MultiSelectProps> = ({
 
                     {isOpen && (
                         <div
-                            className="absolute left-0 z-40 w-full overflow-y-auto bg-white rounded-lg shadow-sm top-full max-h-select dark:bg-gray-900"
+                            className="absolute left-0 z-40 w-full overflow-y-auto bg-white rounded-b-lg shadow-sm top-full max-h-select dark:bg-gray-900"
                             onClick={(e) => e.stopPropagation()}
                             ref={dropdownRef}
                         >
@@ -246,8 +245,8 @@ const MultiSelectWithSearch: React.FC<MultiSelectProps> = ({
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        placeholder="Знайти або додати нове"
-                                        className="w-full p-2 text-sm border-b-2 dark:bg-gray-800 dark:text-white/90"
+                                        placeholder="Find or add new"
+                                        className="h-11 w-full appearance-none px-4 py-1.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
                                         autoFocus
                                     />
                                     {searchQuery && (
@@ -293,10 +292,10 @@ const MultiSelectWithSearch: React.FC<MultiSelectProps> = ({
                                     ))
                                 ) : searchQuery.trim() ? (
                                     <div className="p-2 text-sm text-gray-500">
-                                        Немає результатів. Натисніть "Додати" щоб створити нову опцію.
+                                        No results. Click "Add" to create a new option.
                                     </div>
                                 ) : (
-                                    <div className="p-2 text-sm text-gray-500">Немає доступних опцій</div>
+                                    <div className="p-2 text-sm text-gray-500">No options available</div>
                                 )}
                                 {searchQuery.trim() && (
                                     <div className="text-sm">
@@ -307,7 +306,7 @@ const MultiSelectWithSearch: React.FC<MultiSelectProps> = ({
                                             onClick={handleAddNewOption}
                                             className="w-full p-2 text-blue-500 rounded-none rounded-bl-lg rounded-br-lg"
                                         >
-                                            Додати "{searchQuery.trim()}"
+                                            Add "{searchQuery.trim()}"
                                         </Button>
                                     </div>
                                 )}

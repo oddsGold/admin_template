@@ -10,6 +10,8 @@ const paths = {
     ROLES: 'admin/roles',
     EDITROLES: 'admin/roles/:id/edit',
     CREATROLES: 'admin/roles/create',
+    IMAGES: 'admin/images',
+    FILES: 'admin/files',
 } as const;
 
 export { paths };

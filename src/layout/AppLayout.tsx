@@ -10,7 +10,6 @@ const LayoutContent: React.FC = () => {
     const {isExpanded, isHovered, isMobileOpen} = useSidebar();
     const {account, isLoading: isLoadingAccount, isError} = useGetAccount();
     const isAccountReady = !isLoadingAccount && !!account;
-    console.log("Account state:", { account, isLoadingAccount, isError });
 
     return (
         <div className="min-h-screen xl:flex">

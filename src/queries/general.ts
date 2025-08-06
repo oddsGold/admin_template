@@ -44,13 +44,13 @@ export const useAddOption = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['options'] });
-            toast.success('Опцію додано успішно', {
-                description: 'Нову опцію було додано до списку',
+            toast.success('Successfully added option', {
+                description: 'New option is now available in the list',
             });
         },
         onError: () => {
-            toast.error('Не вдалося додати опцію', {
-                description: 'Спробуйте ще раз пізніше',
+            toast.error('Could not add option', {
+                description: 'An error occurred. Please retry.',
             });
         },
     });

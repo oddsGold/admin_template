@@ -2,7 +2,7 @@ import {PaginationLinks, PaginationMeta} from "./api";
 import {Role} from "./role";
 
 export interface User {
-    id: string;
+    id: number;
     login: string;
     email: string;
     tfa: boolean;

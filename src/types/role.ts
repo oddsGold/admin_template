@@ -1,7 +1,7 @@
 import {PaginationLinks, PaginationMeta} from "./api";
 
 export interface Role {
-    id: string;
+    id: number;
     name: string;
     label: string;
     resources: number[];

@@ -1,7 +1,6 @@
 import {useLocation} from 'react-router-dom';
 import {useModal} from '../../../hooks/useModal';
-import {EntityWithId} from '../../../types/api';
-import {PaginationMeta} from '../../../types/users';
+import {EntityWithId, PaginationMeta} from '../../../types/api';
 import {BasicTableProps, MultiOption} from "../../../types/crud";
 import DataTable from "../DataTable.tsx";
 import PaginationInfo from "../../generics/PaginationInfo";

@@ -62,7 +62,7 @@ export const useGetCurrentUser = (id: string) => {
 export const useDeleteUser = () => {
     const queryClient = useQueryClient();
 
-    return useMutation<void, Error, string>({
+    return useMutation<void, Error, number>({
         mutationFn: async (id) => {
             await fetchWithAuth(`/users/${id}`, {
                 method: 'DELETE',

@@ -1,8 +1,8 @@
 import {TableCell} from '../ui/table';
 import Badge from '../ui/badge/Badge';
 import {Link, Location} from 'react-router-dom';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import {useSortable} from '@dnd-kit/sortable';
+import {CSS} from '@dnd-kit/utilities';
 import {EntityWithId} from '../../types/api';
 import {GridHeader} from '../../types/grid-header';
 import _ from 'lodash';
@@ -35,7 +35,7 @@ function DataTableRow<TData extends EntityWithId>({
     } = useSortable({
         id,
         disabled: !dnd,
-        attributes: dnd ? { role: 'button', tabIndex: 0 } : undefined,
+        attributes: dnd ? {role: 'button', tabIndex: 0} : undefined,
     });
 
     const style = dnd
@@ -46,8 +46,11 @@ function DataTableRow<TData extends EntityWithId>({
         : undefined;
 
     return (
-        <tr style={style} className="relative cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
-        {/*<tr className="relative cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">*/}
+        <tr style={style}
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+            className="relative cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
             {gridHeaderRow.map((header, cellIndex) => (
                 <TableCell key={cellIndex}
                            className="px-4 py-3 text-gray-500 text-start text-theme-sm border border-gray-100 dark:text-gray-400 dark:border-white/[0.05]"
@@ -62,43 +65,42 @@ function DataTableRow<TData extends EntityWithId>({
 
             <TableCell
                 className="px-4 py-3 text-gray-500 text-start text-theme-sm border border-gray-100 dark:text-gray-400 dark:border-white/[0.05]">
-        <span className="flex items-center w-full gap-2">
-          {dnd && (
-              <span ref={setNodeRef} {...attributes} {...listeners}>
-              {/*<span>*/}
-              <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="cursor-pointer hover:cursor-pointer active:cursor-grabbing"
-                  style={{transition: 'transform 0.2s ease'}}
-              >
-                <path
-                    d="M3 4H13"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-                <path
-                    d="M3 8H13"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-                <path
-                    d="M3 12H13"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          )}
+                <span className="flex items-center w-full gap-2">
+                  {dnd && (
+                      <span ref={setNodeRef} {...attributes} {...listeners}>
+                      <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="cursor-pointer hover:cursor-pointer active:cursor-grabbing"
+                          style={{transition: 'transform 0.2s ease'}}
+                      >
+                        <path
+                            d="M3 4H13"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                        <path
+                            d="M3 8H13"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                        <path
+                            d="M3 12H13"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  )}
             {setEditPath && (
                 <Link
                     to={`${setEditPath}/${row.id}/edit`}

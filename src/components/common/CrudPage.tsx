@@ -14,7 +14,7 @@ interface CrudPageProps<TData, TMeta = unknown> {
     editPath?: string;
     gridHeaderRow?: GridHeader[];
     useQuery: (params: QueryParams) => UseQueryResult<GeneralResponse<TData, TMeta>, Error>;
-    useDeleteMutation?: () => UseMutationResult<void, Error, string, unknown>;
+    useDeleteMutation?: () => UseMutationResult<void, Error, number, unknown>;
     isFilter?: boolean;
     isSearch?: boolean;
     dnd?: boolean;

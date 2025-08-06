@@ -61,7 +61,7 @@ export const useGetResources = (params: QueryParams = {}): UseQueryResult<Resour
 export const useDeleteRole = () => {
     const queryClient = useQueryClient();
 
-    return useMutation<void, Error, string>({
+    return useMutation<void, Error, number>({
         mutationFn: async (id) => {
             await fetchWithAuth(`/roles/${id}`, {
                 method: 'DELETE',
@@ -103,6 +103,68 @@ export const useCreateRole = () => {
         onError: () => {
             toast.error('Failed to create role', {
                 description: 'Could not create new role. Please try again.',
+            });
+        },
+    })
+}
+
+export const useGetCurrentRole = (id: string) => {
+    const { data, ...rest } = useQuery<Role, Error>({
+        queryKey: ['currentRole', id],
+        queryFn: async (): Promise<Role> => {
+            try {
+                const response = await fetchWithAuth(`/roles/${id}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const responseData = await response.json();
+
+                return responseData.data || responseData;
+            } catch (error) {
+                console.error('Failed to fetch role', error);
+                toast.error('Failed to fetch role', {
+                    description: 'Could not load role data. Please try again.',
+                });
+                throw error;
+            }
+        },
+    });
+
+    return {
+        role: data,
+        ...rest
+    };
+};
+
+export const useUpdateRole = (id: string) => {
+    const queryClient = useQueryClient();
+
+    return useMutation<Role, Error, RoleRequest>({
+        mutationFn: async (data) => {
+            const response = await fetchWithAuth(`/roles/${id}`, {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                predicate: (query) => {
+                    const [key, arg] = query.queryKey;
+                    return (
+                        key === 'roles' ||
+                        (key === 'currentRole' && arg === id)
+                    );
+                }
+            });
+
+            toast.success('Role updated successfully', {
+                description: 'Role data has been saved successfully',
+            });
+        },
+        onError: () => {
+            toast.error('Failed to update role', {
+                description: 'Could not update role data. Please try again.',
             });
         },
     })

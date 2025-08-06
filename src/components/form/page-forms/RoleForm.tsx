@@ -12,8 +12,8 @@ const createRoleSchema = () => z.object({
     label: z.string().min(3, "Label must be at least 3 characters"),
     resources: z.number()
         .array()
-        .min(1, {message: 'Виберіть ресурс'})
-        .nonempty({message: "Поле resources обов'язкове до заповнення"})
+        .min(1, {message: 'Select at least one resource'})
+        .nonempty({message: "Resources field is required"})
 })
 
 interface RoleFormProps {

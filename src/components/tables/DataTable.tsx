@@ -74,7 +74,13 @@ function DataTable<TData extends EntityWithId>({
     );
 
     return (
-        <Table className="w-full overflow-hidden">
+        <DndContext
+            collisionDetection={closestCorners}
+            modifiers={[restrictToVerticalAxis]}
+            onDragStart={handleDragStart}
+            onDragEnd={onDragEnd}
+        >
+            <Table className="w-full overflow-hidden">
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
                     {gridHeaderRow.map((header, index) => (
@@ -128,49 +134,26 @@ function DataTable<TData extends EntityWithId>({
             </TableHeader>
 
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {dnd ? (
-                    <DndContext
-                        collisionDetection={closestCorners}
-                        modifiers={[restrictToVerticalAxis]}
-                        onDragStart={handleDragStart}
-                        onDragEnd={onDragEnd}
-                    >
-                        <SortableContext
-                            items={localData.map((item) => item.id)}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            {localData.map((row) => (
-                                <DataTableRow
-                                    key={row.id}
-                                    id={row.id}
-                                    gridHeaderRow={gridHeaderRow}
-                                    row={row}
-                                    setEditPath={setEditPath}
-                                    handleDelete={handleDelete}
-                                    location={location}
-                                    dnd={dnd}
-                                />
-                            ))}
-                        </SortableContext>
-                    </DndContext>
-                ) : (
-                    <>
-                        {data.map((row) => (
-                            <DataTableRow
-                                key={row.id}
-                                id={row.id}
-                                gridHeaderRow={gridHeaderRow}
-                                row={row}
-                                setEditPath={setEditPath}
-                                handleDelete={handleDelete}
-                                location={location}
-                                dnd={dnd}
-                            />
-                        ))}
-                    </>
-                )}
+                <SortableContext
+                    items={localData.map((item) => item.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    {(dnd ? localData : data).map((row) => (
+                        <DataTableRow
+                            key={row.id}
+                            id={row.id}
+                            gridHeaderRow={gridHeaderRow}
+                            row={row}
+                            setEditPath={setEditPath}
+                            handleDelete={handleDelete}
+                            location={location}
+                            dnd={dnd}
+                        />
+                    ))}
+                </SortableContext>
             </TableBody>
         </Table>
+        </DndContext>
     );
 }
 
