@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { Link } from "react-router-dom";
-import { useSidebar } from "../context/SidebarContext";
-import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
-import NotificationDropdown from "../components/header/NotificationDropdown";
-import UserDropdown from "../components/header/UserDropdown";
-import {AccountData} from "../types/account.ts";
+import { Link } from 'react-router-dom';
+import { useSidebar } from '../context/SidebarContext';
+import { ThemeToggleButton } from '../components/common/ThemeToggleButton';
+import NotificationDropdown from '../components/header/NotificationDropdown';
+import UserDropdown from '../components/header/UserDropdown';
+import { AccountData } from '../types/account.ts';
 
 interface AppHeaderProps {
   account: AccountData;
@@ -32,16 +33,16 @@ const AppHeader: React.FC<AppHeaderProps> = ({ account }) => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
         event.preventDefault();
         inputRef.current?.focus();
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -89,16 +90,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({ account }) => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
-              alt="Logo"
-            />
-            <img
-              className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+            <img className="dark:hidden" src="./images/logo/logo.svg" alt="Logo" />
+            <img className="hidden dark:block" src="./images/logo/logo-dark.svg" alt="Logo" />
           </Link>
 
           <button
@@ -158,7 +151,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ account }) => {
         </div>
         <div
           className={`${
-            isApplicationMenuOpen ? "flex" : "hidden"
+            isApplicationMenuOpen ? 'flex' : 'hidden'
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">

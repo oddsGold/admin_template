@@ -1,28 +1,27 @@
-import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
-import {z} from "zod";
-import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {Loading} from "../loadingBar/Loading.tsx";
-import {useUpdatePassword} from "../../queries/user.ts";
+import { useModal } from '../../hooks/useModal';
+import { Modal } from '../ui/modal';
+import Button from '../ui/button/Button';
+import Input from '../form/input/InputField';
+import Label from '../form/Label';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loading } from '../loadingBar/Loading.tsx';
+import { useUpdatePassword } from '../../queries/user.ts';
 
-const passwordValidationSchema = z.object({
-  old_password: z.string().min(1, { message: 'Введіть поточний пароль' }),
-  password: z.string()
+const passwordValidationSchema = z
+  .object({
+    old_password: z.string().min(1, { message: 'Введіть поточний пароль' }),
+    password: z
+      .string()
       .min(3, { message: 'Пароль повинен містити щонайменше 3 символи' })
       .nonempty({ message: 'Введіть новий пароль' }),
-  password_confirmation: z.string()
-      .nonempty({ message: 'Підтвердьте новий пароль' })
-}).refine(
-    (data) => data.password === data.password_confirmation,
-    {
-      message: 'Паролі повинні збігатися',
-      path: ['password_confirmation']
-    }
-);
+    password_confirmation: z.string().nonempty({ message: 'Підтвердьте новий пароль' }),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: 'Паролі повинні збігатися',
+    path: ['password_confirmation'],
+  });
 
 type PasswordFormValues = z.infer<typeof passwordValidationSchema>;
 
@@ -40,9 +39,8 @@ export default function UserPasswordCard() {
       old_password: '',
       password: '',
       password_confirmation: '',
-    }
+    },
   });
-
 
   const handleSave = async (data: PasswordFormValues) => {
     await passwordUpdateAsync(data);
@@ -69,8 +67,8 @@ export default function UserPasswordCard() {
           </div>
 
           <button
-              onClick={openModal}
-              className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
+            onClick={openModal}
+            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
           >
             <svg
               className="fill-current"
@@ -103,42 +101,42 @@ export default function UserPasswordCard() {
           </div>
           <form onSubmit={handleSubmit(handleSave)} className="flex flex-col">
             {isPending && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-gray-900/60 rounded-3xl">
-                  <Loading />
-                </div>
+              <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-gray-900/60 rounded-3xl">
+                <Loading />
+              </div>
             )}
             <div className="px-2 overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
                   <Label htmlFor="email">Old password</Label>
                   <Input
-                      id="old_password"
-                      type="text"
-                      {...register('old_password')}
-                      error={!!errors.old_password}
-                      errorMessage={errors.old_password?.message}
+                    id="old_password"
+                    type="text"
+                    {...register('old_password')}
+                    error={!!errors.old_password}
+                    errorMessage={errors.old_password?.message}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="password">New Password</Label>
                   <Input
-                      id="password"
-                      type="text"
-                      {...register('password')}
-                      error={!!errors.password}
-                      errorMessage={errors.password?.message}
+                    id="password"
+                    type="text"
+                    {...register('password')}
+                    error={!!errors.password}
+                    errorMessage={errors.password?.message}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="password_confirmation">Confirm New Password</Label>
                   <Input
-                      id="password_confirmation"
-                      type="text"
-                      {...register('password_confirmation')}
-                      error={!!errors.password_confirmation}
-                      errorMessage={errors.password_confirmation?.message}
+                    id="password_confirmation"
+                    type="text"
+                    {...register('password_confirmation')}
+                    error={!!errors.password_confirmation}
+                    errorMessage={errors.password_confirmation?.message}
                   />
                 </div>
               </div>

@@ -1,15 +1,52 @@
 {
-  "name": "tailadmin-react",
+  "name": "layout-react-admin",
   "private": true,
   "version": "2.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "format:admin": "prettier --write src/**/*.{ts,tsx}",
+    "format": "npm run format:admin",
+    "format:check:admin": "prettier --check src/**/*.{ts,tsx}",
+    "format:check": "npm run format:check:admin",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "preview": "vite preview",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+        "eslint",
+        "prettier --write --end-of-line lf"
+    ]
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-alignment": "^35.4.0",
+    "@ckeditor/ckeditor5-autoformat": "^35.4.0",
+    "@ckeditor/ckeditor5-basic-styles": "^35.4.0",
+    "@ckeditor/ckeditor5-block-quote": "^35.4.0",
+    "@ckeditor/ckeditor5-code-block": "^35.4.0",
+    "@ckeditor/ckeditor5-dev-utils": "^32.0.2",
+    "@ckeditor/ckeditor5-editor-classic": "^35.4.0",
+    "@ckeditor/ckeditor5-essentials": "^35.4.0",
+    "@ckeditor/ckeditor5-font": "^35.4.0",
+    "@ckeditor/ckeditor5-heading": "^35.4.0",
+    "@ckeditor/ckeditor5-html-embed": "^35.4.0",
+    "@ckeditor/ckeditor5-html-support": "^35.4.0",
+    "@ckeditor/ckeditor5-image": "^35.4.0",
+    "@ckeditor/ckeditor5-indent": "^35.4.0",
+    "@ckeditor/ckeditor5-link": "^35.4.0",
+    "@ckeditor/ckeditor5-list": "^35.4.0",
+    "@ckeditor/ckeditor5-media-embed": "^35.4.0",
+    "@ckeditor/ckeditor5-paragraph": "^35.4.0",
+    "@ckeditor/ckeditor5-paste-from-office": "^35.4.0",
+    "@ckeditor/ckeditor5-react": "^5.0.5",
+    "@ckeditor/ckeditor5-source-editing": "^35.4.0",
+    "@ckeditor/ckeditor5-table": "^35.4.0",
+    "@ckeditor/ckeditor5-theme-lark": "^35.4.0",
+    "@ckeditor/ckeditor5-typing": "^35.4.0",
+    "@ckeditor/ckeditor5-upload": "^35.4.0",
+    "@ckeditor/vite-plugin-ckeditor5": "^0.1.3",
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@fullcalendar/core": "^6.1.15",
@@ -26,6 +63,8 @@
     "axios": "^1.11.0",
     "axios-auth-refresh": "^3.3.6",
     "clsx": "^2.1.1",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
     "flatpickr": "^4.6.13",
     "lodash": "^4.17.21",
     "lucide-react": "^0.526.0",
@@ -52,19 +91,25 @@
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "@types/react-router-dom": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.19.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.4",
     "postcss": "^8.5.2",
     "tailwindcss": "^4.0.8",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.22.0",
     "vite": "^6.1.0",
     "vite-plugin-svgr": "^4.3.0"
   },
   "overrides": {
+    "@ckeditor/ckeditor5-react": {
+      "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    },
     "react-helmet-async": {
       "react": "^16.8.0 || ^17 || ^18 || ^19"
     },

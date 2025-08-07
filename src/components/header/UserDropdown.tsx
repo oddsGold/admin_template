@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { Dropdown } from "../ui/dropdown/Dropdown";
-import {useLogout} from "../../queries/auth.ts";
-import { AccountData } from "../../types/account.ts";
+import { useState } from 'react';
+import { DropdownItem } from '../ui/dropdown/DropdownItem';
+import { Dropdown } from '../ui/dropdown/Dropdown';
+import { useLogout } from '../../queries/auth.ts';
+import { AccountData } from '../../types/account.ts';
 import owner from '../../images/user/owner.png';
 
 interface UserDropdownProps {
@@ -32,15 +32,15 @@ export default function UserDropdown({ account }: UserDropdownProps) {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src={owner} alt="owner"/>
+          <img src={owner} alt="owner" />
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">
           <b>{account.login}</b>
         </span>
         <svg
-            className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
+          className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
           }`}
           width="18"
           height="20"
